@@ -29,6 +29,14 @@ class StudentSchema(ma.Schema):
 student_schema = StudentSchema()
 students_schema = StudentSchema(many=True)
 
+@app.route('/')
+def home():
+    return 'Hello, World!'
+
+@app.route('/about')
+def about():
+    return 'About'
+
 @app.route("/students", methods=["GET"])
 def students_list():
     students = Student.query.all()
