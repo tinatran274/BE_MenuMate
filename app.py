@@ -3,8 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://root:123456@localhost/test'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://root:123456@localhost/test'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://menu_mate_user:qOCOl4rmSffg05oDQwTdwbZNtZDDKBGQ@dpg-cmplptect0pc73f3i5lg-a.singapore-postgres.render.com/menu_mate'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
