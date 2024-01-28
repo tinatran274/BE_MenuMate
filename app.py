@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+import pymysql
+
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://root:123456@localhost/test'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://menu_mate_user:qOCOl4rmSffg05oDQwTdwbZNtZDDKBGQ@dpg-cmplptect0pc73f3i5lg-a.singapore-postgres.render.com/menu_mate'
+app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://admin:123456789@database.crw4qiio2s1e.ap-southeast-1.rds.amazonaws.com/database1'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -76,4 +77,4 @@ def student_delete(id):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        app.run(debug=True)
+        app.run(host='0.0.0.0', port='5000')
