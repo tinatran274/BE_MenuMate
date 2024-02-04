@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from models.user import User, UserSchema
 from extension import db
+from genetic_algorithm.GA import genetic_algorithm, print_menu
 
 user_api = Blueprint('user_api',__name__,url_prefix='/api/user')
 
@@ -39,3 +40,8 @@ def user_delete(id):
     db.session.delete(user)
     db.session.commit()
     return user_schema.jsonify(user)
+
+@user_api.route('/run_genetic_algorithm', methods=["GET"])
+def run_genetic_algorithm():
+    result = genetic_algorithm()
+    return jsonify(result)
