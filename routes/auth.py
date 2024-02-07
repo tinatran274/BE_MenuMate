@@ -26,9 +26,13 @@ def login():
 @auth.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
+    current_user_email = get_jwt_identity()
+    user_account = Account.query.filter_by(email=current_user_email).first()
+    if user_account:
+        return jsonify(logged_in_as_user_id=user_account.user_id), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404
+    
 
 @auth.route('/register', methods=['POST'])
 def register():
