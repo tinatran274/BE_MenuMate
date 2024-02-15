@@ -20,7 +20,7 @@ def login():
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token), 200
         else:
-            return jsonify({'message': 'User not found'}), 404
+            return jsonify({'message': 'Login failed'}), 404
     except Exception as e:
         return jsonify({'message': 'Login failed. Please try again later.'}), 500
 
@@ -40,17 +40,16 @@ def register():
     try:
         email=request.json["email"]
         password=request.json["password"]
-        existing_user = User.query.filter_by(username=email).first()
+        existing_user = Account.query.filter_by(email=email).first()
         if existing_user:
-            return jsonify({'message': 'Email already exists. Please choose a different email.'}), 400
+            return jsonify({'message': 'Email already exists. Please choose a different email.'}), 404
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        with db.session.begin():
-            new_user = User(username=email)
-            db.session.add(new_user)
-            db.session.commit()
-            new_account = Account(user_id=new_user.id, email=email, password=hashed_password)
-            db.session.add(new_account)
-            db.session.commit()
+        new_user = User(username=email)
+        db.session.add(new_user)
+        db.session.commit()
+        new_account = Account(user_id=new_user.id, email=email, password=hashed_password)
+        db.session.add(new_account)
+        db.session.commit()
         access_token = create_access_token(identity=email)
         return jsonify(access_token=access_token), 200
     except Exception as e:
