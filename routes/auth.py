@@ -11,17 +11,18 @@ auth = Blueprint('auth',__name__,url_prefix='/api/auth')
 
 @auth.route("/login", methods=["POST"])
 def login():
-    email=request.json["email"]
-    password=request.json["password"]
+    try:
+        email=request.json["email"]
+        password=request.json["password"]
+        user = Account.query.filter_by(email=email).first()
 
-    user = Account.query.filter_by(email=email).first()
-
-    if user and bcrypt.check_password_hash(user.password, password):
-        access_token = create_access_token(identity=email)
-        return jsonify(access_token=access_token), 200
-    else:
-        return jsonify(message='Invalid credentials'), 401
-    
+        if user and bcrypt.check_password_hash(user.password, password):
+            access_token = create_access_token(identity=email)
+            return jsonify(access_token=access_token), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Login failed. Please try again later.'}), 500
 
 @auth.route('/protected', methods=['GET'])
 @jwt_required()
@@ -36,15 +37,21 @@ def protected():
 
 @auth.route('/register', methods=['POST'])
 def register():
-    email=request.json["email"]
-    password=request.json["password"]
-
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=email)
-    db.session.add(new_user)
-    db.session.commit()
-    new_account = Account(user_id=new_user.id, email=email, password=hashed_password)
-    db.session.add(new_account)
-    db.session.commit()
-    access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token), 201
+    try:
+        email=request.json["email"]
+        password=request.json["password"]
+        existing_user = User.query.filter_by(username=email).first()
+        if existing_user:
+            return jsonify({'message': 'Email already exists. Please choose a different email.'}), 400
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        with db.session.begin():
+            new_user = User(username=email)
+            db.session.add(new_user)
+            db.session.commit()
+            new_account = Account(user_id=new_user.id, email=email, password=hashed_password)
+            db.session.add(new_account)
+            db.session.commit()
+        access_token = create_access_token(identity=email)
+        return jsonify(access_token=access_token), 200
+    except Exception as e:
+        return jsonify({'message': 'Registration failed. Please try again later.'}), 500
