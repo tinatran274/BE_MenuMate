@@ -10,7 +10,6 @@ class User(db.Model):
     gender = db.Column(db.String(100))
     exercise = db.Column(db.String(100))
     aim = db.Column(db.String(100))
-    diet = db.Column(db.String(100))
 
     def __init__(self, username):
         self.username = username
