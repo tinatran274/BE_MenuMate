@@ -16,6 +16,10 @@ class Recipe(db.Model):
     def __repr__(self):
         return f'<Recipe {self.ingredient_id} {self.dish_id}>'
     
+
+    def get_unit(self):
+        return self.unit
+    
     def calculate_grams(self):
         detail_ingr = Ingredient.query.filter_by(id=self.ingredient_id).first()
         if detail_ingr.category == 'Grains':

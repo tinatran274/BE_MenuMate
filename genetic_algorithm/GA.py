@@ -173,7 +173,7 @@ def genetic_algorithm():
     best_menu = population[0]
     # best_solution = calculate_fitness(best_menu)
     # count_loop = 0
-    for generation in range(num_generations):
+    for _ in range(num_generations):
     # while (best_solution < 16):
         fitness_scores = [calculate_fitness(menu) for menu in population]
         selected_parents = random_selection(population, fitness_scores)

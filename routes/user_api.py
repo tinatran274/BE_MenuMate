@@ -3,7 +3,7 @@ from models.user import User, UserSchema
 from extension import db
 from genetic_algorithm.GA import genetic_algorithm, print_menu
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
-from genetic_algorithm.menu_individual import MenuIndividual
+from genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from models.dish import Dish, DishSchema
 
 user_api = Blueprint('user_api',__name__,url_prefix='/api/user')
@@ -86,9 +86,9 @@ def run_genetic_algorithm():
     result = genetic_algorithm()
     return jsonify(result)
 
-@user_api.route('/new_genetic_algorithm', methods=["GET"])
-def new_genetic_algorithm():
-    menu_instance = MenuIndividual()
-    a = menu_instance.to_dict()
+@user_api.route('/new_genetic_algorithm/<id>', methods=["GET"])
+def new_genetic_algorithm(id):
+    GA = GeneticAlgorithm(6, 0.2, 5, id)
+    a = GA.main_genetic_algorithm()
     return a
 

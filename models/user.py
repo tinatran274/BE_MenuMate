@@ -24,6 +24,9 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
     
+    def get_aim(self):
+        return self.aim
+
     def calculate_bmi(self):
         bmi = (self.weight / ((self.height / 100) ** 2))
         return bmi
