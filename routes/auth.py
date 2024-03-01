@@ -20,9 +20,9 @@ def login():
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token), 200
         else:
-            return jsonify({'message': 'Login failed'}), 404
+            return jsonify({'message': 'Đăng nhập thất bại'}), 404
     except Exception as e:
-        return jsonify({'message': 'Login failed. Please try again later.'}), 500
+        return jsonify({'message': 'Đăng nhập thất bại.'}), 500
 
 @auth.route('/protected', methods=['GET'])
 @jwt_required()
@@ -32,7 +32,7 @@ def protected():
     if user_account:
         return jsonify(logged_in_as_user_id=user_account.user_id), 200
     else:
-        return jsonify({'message': 'User not found'}), 404
+        return jsonify({'message': 'Không tìm thấy người dùng'}), 404
     
 
 @auth.route('/register', methods=['POST'])
@@ -42,7 +42,7 @@ def register():
         password=request.json["password"]
         existing_user = Account.query.filter_by(email=email).first()
         if existing_user:
-            return jsonify({'message': 'Email already exists. Please choose a different email.'}), 404
+            return jsonify({'message': 'Email đã tồn tại. Vui lòng chọn một email khác.'}), 404
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(username=email)
         db.session.add(new_user)
@@ -53,4 +53,4 @@ def register():
         access_token = create_access_token(identity=email)
         return jsonify(access_token=access_token), 200
     except Exception as e:
-        return jsonify({'message': 'Registration failed. Please try again later.'}), 500
+        return jsonify({'message': 'Đăng ký thất bại'}), 500

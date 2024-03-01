@@ -19,7 +19,6 @@ class User(db.Model):
         self.gender = 'Nữ'
         self.exercise = 'Không vận động'
         self.aim = 'Giảm cân'
-        self.diet = 'Healthy'
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -66,7 +65,6 @@ class User(db.Model):
             'gender': self.gender,
             'exercise': self.exercise,
             'aim': self.aim,
-            'diet': self.diet,
             'bmi': bmi,
             'bmr': bmr,
             'tdee': tdee
@@ -75,4 +73,4 @@ class User(db.Model):
     
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'username', 'age', 'height', 'weight', 'gender', 'exercise', 'aim', 'diet')
+        fields = ('id', 'username', 'age', 'height', 'weight', 'gender', 'exercise', 'aim')
