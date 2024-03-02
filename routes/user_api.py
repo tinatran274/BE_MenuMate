@@ -61,13 +61,23 @@ def aim_update(id):
     db.session.commit()
     return user_schema.jsonify(user)
 
-@user_api.route("/update_diet/<id>", methods=["PUT"])
-def diet_update(id):
+@user_api.route("/update_gender/<id>", methods=["PUT"])
+def gender_update(id):
     user = User.query.get(id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    new_diet=request.json["diet"]
-    user.diet = new_diet
+    new_gender=request.json["gender"]
+    user.gender = new_gender
+    db.session.commit()
+    return user_schema.jsonify(user)
+
+@user_api.route("/update_exercise/<id>", methods=["PUT"])
+def exercise_update(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    new_exercise=request.json["exercise"]
+    user.exercise = new_exercise
     db.session.commit()
     return user_schema.jsonify(user)
 
