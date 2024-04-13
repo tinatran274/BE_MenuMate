@@ -91,6 +91,15 @@ def user_delete(id):
     db.session.commit()
     return user_schema.jsonify(user)
 
+@user_api.route('/add_favorite', methods=["POST"])
+def add_favorite_dish(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    dish_id=request.json["dish_id"]
+    
+    return jsonify()
+
 @user_api.route('/run_genetic_algorithm', methods=["GET"])
 def run_genetic_algorithm():
     result = genetic_algorithm()

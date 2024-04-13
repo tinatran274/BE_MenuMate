@@ -21,6 +21,12 @@ class Dish(db.Model):
     def get_name(self):
         return self.name
     
+    def get_main_category(self):
+        return self.main_category
+    
+    
+
+    
     def to_dict(self):
         recipes = Recipe.query.filter_by(dish_id=self.id).all()
         total_kcal = 0

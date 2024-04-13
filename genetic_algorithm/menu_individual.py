@@ -17,7 +17,7 @@ class MenuIndividual:
         else:
             self.menu = list_dish
 
-        self.fitness = self.calculate_fitness_score()
+        self.fitness = self.calculate_food_group_diversity_score()
 
     def get_fitness(self):
         return self.fitness
@@ -44,22 +44,36 @@ class MenuIndividual:
         menu['fitness'] = self.fitness
         return menu
     
-    def calculate_group_food_score(self):
-        total_score = 0
+    def calculate_food_diversity_score(self):
         temp_menu = self.menu
+        unique_category = len(set(dish.get_name() for dish in temp_menu))
+        return unique_category * 5
+    
+    def calculate_food_group_diversity_score(self):
+        num_dish_accept = 0
+        temp_menu = self.menu
+        morning_require = {'Grains', 'Protein', 'Fruits', 'Dairy'}
+        noon_evening_require = {'Grains', 'Protein', 'Fruits', 'Vegetables'}
+        snack_require = {'Fruits', 'Dairy'}
         for category, count in self.MEAL_CATEGORIES.items():
-            dishes = temp_menu[:count]
-            unique_category = len(set(dish.main_category for dish in dishes))
-            category_score = min(count, unique_category)
-            total_score += category_score
+            category_dishes = temp_menu[:count]
+            category_group = set(dish.get_main_category() for dish in category_dishes)
+            if category == 'morning':
+                matching_num = len(category_group & morning_require)
+                num_dish_accept += matching_num
+            elif category == 'noon' or category == 'evening':
+                matching_num = len(category_group & noon_evening_require)
+                num_dish_accept += matching_num
+            elif category == 'snack':
+                matching_num = len(category_group & snack_require)
+                num_dish_accept += matching_num
             temp_menu = temp_menu[count:]
-        return total_score
+        return num_dish_accept * 5
     
 
-    def calculate_VHEI_score(self):
+    def calculate_VHEI_calo_score(self):
         vegetable_unit = fruit_unit = grain_unit = protein_unit = fat_n_oil_unit = 0
         dairy_unit = sugar_unit = salt_n_sauce_unit = total_kcal = 0
-
         for dish in self.menu:
             result = (
                 db.session.query(Dish.id, Recipe.unit, Ingredient.kcal, Ingredient.glucid,
@@ -133,22 +147,17 @@ class MenuIndividual:
         else: 
             user_tdee = user.calculate_tdee()
             user_aim = user.get_aim()
-            if user_aim == 'Giảm cân':
-                aim_score = 10 * user_tdee / total_kcal if total_kcal > user_tdee else 10
-            elif user_aim == 'Tăng cân':
-                aim_score = 10 * total_kcal / user_tdee if total_kcal < user_tdee else 10
+            if user_aim == 'Tăng cân':
+                aim_score = 100 * (total_kcal / user_tdee)
             else:
-                if total_kcal < user_tdee - 200:
-                    aim_score = 10 * total_kcal / (user_tdee - 200)
-                elif total_kcal > user_tdee + 200:
-                    aim_score = 10 - (10 * (total_kcal - (user_tdee + 200)) / (user_tdee + 200))
-                else: aim_score = 10
+                aim_score = 100 - (100 * (total_kcal - user_tdee) / user_tdee)
 
         return aim_score + total_VHEI_score
 
     def calculate_fitness_score(self):
-        group_food_score = self.calculate_group_food_score()
-        VHEI_score = self.calculate_VHEI_score()
-        return group_food_score + VHEI_score
+        food_diversity_score = self.calculate_food_diversity_score()
+        food_group_diversity_score = self.calculate_food_group_diversity_score()
+        VHEI_cako_score = self.calculate_VHEI_calo_score()
+        return food_diversity_score + food_group_diversity_score + VHEI_cako_score
 
   

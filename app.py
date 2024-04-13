@@ -15,7 +15,7 @@ from datetime import timedelta
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://admin:123456789@database.crw4qiio2s1e.ap-southeast-1.rds.amazonaws.com/database1'
+app.config['SQLALCHEMY_DATABASE_URI'] ='mysql+pymysql://root:123456@localhost/menu_mate'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'QWERTY'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
