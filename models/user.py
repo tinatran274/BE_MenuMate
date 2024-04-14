@@ -1,5 +1,6 @@
 from extension import db, ma 
 from flask import jsonify
+from sqlalchemy import ForeignKey
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,6 +11,7 @@ class User(db.Model):
     gender = db.Column(db.String(100))
     exercise = db.Column(db.String(100))
     aim = db.Column(db.String(100))
+    disease_id = db.Column(db.Integer, ForeignKey('disease.id'))
 
     def __init__(self, username):
         self.username = username
@@ -19,12 +21,19 @@ class User(db.Model):
         self.gender = 'Nữ'
         self.exercise = 'Không vận động'
         self.aim = 'Giảm cân'
+        self.disease_id = 3
 
     def __repr__(self):
         return f'<User {self.username}>'
     
+    def get_id(self):
+        return self.id
+    
     def get_aim(self):
         return self.aim
+    
+    def get_disease_id(self):
+        return self.disease_id
 
     def calculate_bmi(self):
         bmi = (self.weight / ((self.height / 100) ** 2))
@@ -70,6 +79,16 @@ class User(db.Model):
             'tdee': tdee
         }
         return user_details
+
+    def is_validate_user_data(self):
+        if self.age == 0 or self.height == 0 or self.weight == 0:
+            return False
+        return True
+        
+
+
+
+
     
 class UserSchema(ma.Schema):
     class Meta:

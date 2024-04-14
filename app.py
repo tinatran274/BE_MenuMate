@@ -8,6 +8,8 @@ from routes.auth import auth
 from models.ingredient import Ingredient
 from models.dish import Dish
 from models.recipe import Recipe
+from models.disease import Disease
+from models.cannot_eat import CannotEat
 from extension import db
 import pandas as pd
 from datetime import timedelta
@@ -81,6 +83,28 @@ def init_recipe_data():
         db.session.add(recipe)
     db.session.commit()
 
+
+def init_disease_data():
+    print('Initializing disease data')
+    df = pd.read_csv('disease_data.csv')
+    for index, row in df.iterrows():
+        disease = Disease(
+            disease_name=row[0]
+        )
+        db.session.add(disease)
+    db.session.commit()
+
+def init_cannot_eat_data():
+    print('Initializing cannot_eat data')
+    df = pd.read_csv('cannot_eat_data.csv')
+    for index, row in df.iterrows():
+        cannot_eat = CannotEat(
+            disease_id=row[0],
+            ingredient_id=row[1],
+        )
+        db.session.add(cannot_eat)
+    db.session.commit()
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
@@ -90,5 +114,9 @@ if __name__ == "__main__":
             init_dish_data()
         if not Recipe.query.first():
             init_recipe_data()
+        if not Disease.query.first():
+            init_disease_data()
+        if not CannotEat.query.first():
+            init_cannot_eat_data()
         
         app.run(host='0.0.0.0', port='5000')

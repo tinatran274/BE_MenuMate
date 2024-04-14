@@ -3,6 +3,9 @@ from models.dish import Dish, DishSchema
 from models.recipe import Recipe, RecipeSchema
 from models.user import User, UserSchema
 from models.ingredient import Ingredient
+from models.disease import Disease
+from models.cannot_eat import CannotEat
+from models.favorite import Favorite
 
 from extension import db, ma 
 
@@ -17,7 +20,7 @@ class MenuIndividual:
         else:
             self.menu = list_dish
 
-        self.fitness = self.calculate_food_group_diversity_score()
+        self.fitness = self.calculate_fitness_score()
 
     def get_fitness(self):
         return self.fitness
@@ -150,14 +153,45 @@ class MenuIndividual:
             if user_aim == 'Tăng cân':
                 aim_score = 100 * (total_kcal / user_tdee)
             else:
-                aim_score = 100 - (100 * (total_kcal - user_tdee) / user_tdee)
+                aim_score = 100 - ((100 * (total_kcal - user_tdee)) / user_tdee)
 
-        return aim_score + total_VHEI_score
+        return  aim_score + total_VHEI_score
+
+    def calculate_health_problem_score(self):
+        num_dish_problem = 0
+        user = User.query.get(self.uid)
+        if not user:
+            return 0
+        else: 
+            user_disease_id = user.get_disease_id()
+            for dish in self.menu:
+                result = (
+                    db.session.query(Ingredient.name).join(Recipe, Recipe.ingredient_id == Ingredient.id)
+                        .join(CannotEat, CannotEat.ingredient_id == Ingredient.id)
+                        .join(Disease, Disease.id == CannotEat.disease_id)
+                        .filter(Recipe.dish_id == dish.get_id(), Disease.id == user_disease_id).all() 
+                )
+                if len(result):
+                    num_dish_problem += 1
+            return (100 * (13 - num_dish_problem)) / 13
+    
+    def calculate_favorite_score(self):
+        user = User.query.get(self.uid)
+        if not user:
+            return 0
+        else: 
+            user_favorite = (Favorite.query.filter_by(user_id=user.get_id()).all())
+            favorite_dish_id = [favorite.dish_id for favorite in user_favorite]
+            favorite_point = sum(10 for dish in self.menu if dish.get_id() in favorite_dish_id)
+            return favorite_point
+
 
     def calculate_fitness_score(self):
         food_diversity_score = self.calculate_food_diversity_score()
         food_group_diversity_score = self.calculate_food_group_diversity_score()
-        VHEI_cako_score = self.calculate_VHEI_calo_score()
-        return food_diversity_score + food_group_diversity_score + VHEI_cako_score
+        VHEI_calo_score = self.calculate_VHEI_calo_score()
+        health_problem_score = self.calculate_health_problem_score()
+        calculate_favorite_score = self.calculate_favorite_score()
+        return food_diversity_score+VHEI_calo_score+food_group_diversity_score+health_problem_score+calculate_favorite_score
 
   
