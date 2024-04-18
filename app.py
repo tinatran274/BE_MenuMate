@@ -4,12 +4,14 @@ from routes.student_api import student_api
 from routes.user_api import user_api
 from routes.dish_api import dish_api
 from routes.ingredient_api import ingredient_api
+from routes.statistic_api import statistic_api
 from routes.auth import auth
 from models.ingredient import Ingredient
 from models.dish import Dish
 from models.recipe import Recipe
 from models.disease import Disease
 from models.cannot_eat import CannotEat
+from models.statistic import Statistic
 from extension import db
 import pandas as pd
 from datetime import timedelta
@@ -32,6 +34,7 @@ app.register_blueprint(auth)
 app.register_blueprint(user_api)
 app.register_blueprint(dish_api)
 app.register_blueprint(ingredient_api)
+app.register_blueprint(statistic_api)
 
 jwt = JWTManager(app)
                  
