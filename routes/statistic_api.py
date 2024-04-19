@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from models.user import User, UserSchema
 from models.favorite import Favorite
 from extension import db
+from datetime import datetime, timedelta
 from models.account import Account
 from models.statistic import Statistic
 from genetic_algorithm.GA import genetic_algorithm, print_menu
@@ -11,44 +12,6 @@ statistic_api = Blueprint('statistic_api',__name__,url_prefix='/api/statistic')
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
-
-
-@statistic_api.route("/get_today", methods=["GET"])
-@jwt_required()
-def statistic_detail():
-    current_user_email = get_jwt_identity()
-    user_account = Account.query.filter_by(email=current_user_email).first()
-    if not user_account:
-        return jsonify({'message': 'Unauthorized'}), 404
-    month = request.json["month"]
-    day = request.json["day"]
-    year = request.json["year"]
-    user_statistic = Statistic.query.filter(
-        Statistic.user_id == user_account.user_id,
-        db.extract('month', Statistic.date_add) == month,
-        db.extract('day', Statistic.date_add) == day,
-        db.extract('year', Statistic.date_add) == year
-    ).all()
-    if not user_statistic:
-        return jsonify({
-            "user_id": user_account.user_id,
-            "date_add": f"{day:02d}-{month:02d}-{year}",
-            "total_morning_calo": 0,
-            "total_noon_calo": 0,
-            "total_dinner_calo": 0,
-            "total_snack_calo": 0,
-            "total_exercise_calo": 0
-        }), 200
-    results = {
-        "user_id": user_account.user_id,
-        "date_add": f"{day:02d}-{month:02d}-{year}",
-        "total_morning_calo": sum([item.morning_calo for item in user_statistic]),
-        "total_noon_calo": sum([item.noon_calo for item in user_statistic]),
-        "total_dinner_calo": sum([item.dinner_calo for item in user_statistic]),
-        "total_snack_calo": sum([item.snack_calo for item in user_statistic]),
-        "total_exercise_calo": sum([item.exercise_calo for item in user_statistic])
-    }
-    return jsonify(results), 200
 
 @statistic_api.route("/add_morning", methods=["POST"])
 @jwt_required()
@@ -120,5 +83,44 @@ def add_exercise():
     db.session.commit()
     return jsonify({'message': 'add_exercise successfully'}), 200
 
+@statistic_api.route("/sevendays_statistic", methods=["GET"])
+@jwt_required()
+def sevendays_statistic():
+    current_user_email = get_jwt_identity()
+    user_account = Account.query.filter_by(email=current_user_email).first()
+    if not user_account:
+        return jsonify({'message': 'Unauthorized'}), 404
+    num_days = int(request.args.get('days', 7))
+    end_date = datetime.utcnow().date()
+    start_date = end_date - timedelta(days=num_days-1)
+    statistics_by_day = []
+    for i in range(num_days):
+        current_date = start_date + timedelta(days=i)
+        user_statistic = Statistic.query.filter(
+            Statistic.user_id == user_account.user_id,
+            db.func.date(Statistic.date_add) == current_date
+        ).all()
+        daily_stats = {
+            "date": current_date.isoformat(),
+            "total_morning_calo": 0,
+            "total_noon_calo": 0,
+            "total_dinner_calo": 0,
+            "total_snack_calo": 0,
+            "total_exercise_calo": 0,
+            "total_calo": 0
+        }
+        if user_statistic:
+            daily_stats["total_morning_calo"] = sum(item.morning_calo for item in user_statistic)
+            daily_stats["total_noon_calo"] = sum(item.noon_calo for item in user_statistic)
+            daily_stats["total_dinner_calo"] = sum(item.dinner_calo for item in user_statistic)
+            daily_stats["total_snack_calo"] = sum(item.snack_calo for item in user_statistic)
+            daily_stats["total_exercise_calo"] = sum(item.exercise_calo for item in user_statistic)
+            daily_stats["total_calo"] = (
+                daily_stats["total_morning_calo"] + daily_stats["total_noon_calo"] +
+                daily_stats["total_dinner_calo"] + daily_stats["total_snack_calo"] -
+                daily_stats["total_exercise_calo"]
+            )
+        statistics_by_day.append(daily_stats)
+    return jsonify(statistics_by_day), 200
 
 

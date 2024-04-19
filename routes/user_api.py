@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request
 from models.user import User, UserSchema
 from models.favorite import Favorite
 from extension import db
+from datetime import datetime
+from models.statistic import Statistic
 from models.account import Account
 from genetic_algorithm.GA import genetic_algorithm, print_menu
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
@@ -157,3 +159,39 @@ def detect_ingredient():
     results = model.train(data='coco8.yaml', epochs=100, imgsz=640)
     results = model('path/to/bus.jpg')
 
+@user_api.route("/get_today", methods=['GET'])
+@jwt_required()
+def get_today():
+    current_user_email = get_jwt_identity()
+    user_account = Account.query.filter_by(email=current_user_email).first()
+    if not user_account:
+        return jsonify({'message': 'Unauthorized'}), 404
+    current_date = datetime.now().date()
+    day, month, year = current_date.day, current_date.month, current_date.year
+    
+    user_statistic = Statistic.query.filter(
+        Statistic.user_id == user_account.user_id,
+        db.extract('day', Statistic.date_add) == day,
+        db.extract('month', Statistic.date_add) == month,
+        db.extract('year', Statistic.date_add) == year
+    ).all()
+    if not user_statistic:
+        return jsonify({
+            "user_id": user_account.user_id,
+            "date_add": current_date.strftime("%d-%m-%Y"), 
+            "total_morning_calo": 0,
+            "total_noon_calo": 0,
+            "total_dinner_calo": 0,
+            "total_snack_calo": 0,
+            "total_exercise_calo": 0
+        }), 200
+    results = {
+        "user_id": user_account.user_id,
+        "date_add": current_date.strftime("%d-%m-%Y"),
+        "total_morning_calo": sum([item.morning_calo for item in user_statistic]),
+        "total_noon_calo": sum([item.noon_calo for item in user_statistic]),
+        "total_dinner_calo": sum([item.dinner_calo for item in user_statistic]),
+        "total_snack_calo": sum([item.snack_calo for item in user_statistic]),
+        "total_exercise_calo": sum([item.exercise_calo for item in user_statistic])
+    }
+    return jsonify(results), 200

@@ -18,10 +18,35 @@ recipes_schema = RecipeSchema(many=True)
 ingredient_schema = IngredientSchema()
 ingredients_schema = IngredientSchema(many=True)
 
-@dish_api.route("/get", methods=["GET"])
-def dishs_list():
+@dish_api.route("/get_all", methods=["GET"])
+def dishs_all_list():
     dishs = Dish.query.all()
     return dishs_schema.dump(dishs)
+
+@dish_api.route("/get", methods=["GET"])
+def dishs_list():
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 10))
+    offset = (page - 1) * page_size
+    total_dish = Dish.query.count()
+    dishs = Dish.query.offset(offset).limit(page_size).all()
+    serialized_dishs = []
+    if dishs:
+        for dish in dishs:
+            total_nutrition = dish.to_dict()
+            serialized_dishs.append(total_nutrition)
+    total_pages = (total_dish + page_size - 1) // page_size
+    pagination_metadata = {
+        "current_page": page,
+        "page_size": page_size,
+        "total_items": total_dish,
+        "total_pages": total_pages
+    }
+    response = {
+        "data": serialized_dishs,
+        "pagination": pagination_metadata
+    }
+    return jsonify(response)
 
 
 @dish_api.route('/add_favorite', methods=["POST"])
@@ -39,11 +64,13 @@ def add_favorite_dish():
     if not dish:
         return jsonify({"message": "Món ăn không tồn tại"}), 404
     existing_favorite = (db.session.query(Favorite)
-                         .filter_by(dish_id=new_favorite_dish_id, user_id=id).first())
+                         .filter_by(dish_id=new_favorite_dish_id, user_id=user_account.user_id).first())
     if existing_favorite:
-        return jsonify({'message': 'Món này đã ở trong danh sách yêu thích, bạn có muốn xóa?'}), 201
+        db.session.delete(existing_favorite)
+        db.session.commit()
+        return jsonify({'message': 'Món này đã ở trong danh sách yêu thích, đã xóa món ăn'}), 201
     else:
-        new_favorite = Favorite(id, new_favorite_dish_id)
+        new_favorite = Favorite(user_account.user_id, new_favorite_dish_id)
         db.session.add(new_favorite)
         db.session.commit()
         return jsonify({'message': 'Thêm thành công'}), 200
@@ -61,22 +88,6 @@ def dish_detail_user(id):
         return dish_schema.dump(dish), 200
     return {**dish_schema.dump(dish), **{'is_favorited': bool(favorite_entry)}}
 
-# @dish_api.route("/update/<id>", methods=["PUT"])
-# def student_update(id):
-#     student = Student.query.get(id)
-#     firstname=request.json["firstname"]
-#     lastname=request.json["lastname"]
-#     student.firstname = firstname
-#     student.lastname = lastname
-#     db.session.commit()
-#     return student_schema.jsonify(student)
-
-# @dish_api.route("/delete/<id>", methods=["DELETE"])
-# def student_delete(id):
-#     student = Student.query.get(id)
-#     db.session.delete(student)
-#     db.session.commit()
-#     return student_schema.jsonify(student)
 
 @dish_api.route("/recipe/<id>", methods=["GET"])
 def ingredient_recipe(id):

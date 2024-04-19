@@ -28,6 +28,8 @@ class Statistic(db.Model):
             'dinner_calo': self.dinner_calo,
             'snack_calo': self.snack_calo,
             'exercise_calo': self.exercise_calo,
+            'total_calo': self.morning_calo  + self.noon_calo + self.dinner_calo + self.snack_calo - self.exercise_calo,
+            'date_added': str(self.date_add),
         }
         return user_details
 
