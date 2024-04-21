@@ -5,7 +5,6 @@ from extension import db
 from datetime import datetime
 from models.statistic import Statistic
 from models.account import Account
-from genetic_algorithm.GA import genetic_algorithm, print_menu
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from genetic_algorithm.genetic_algorithm import GeneticAlgorithm
 from models.dish import Dish, DishSchema
@@ -129,28 +128,6 @@ def user_delete():
     db.session.delete(user)
     db.session.commit()
     return user_schema.jsonify(user)
-
-@user_api.route('/run_genetic_algorithm', methods=["GET"])
-@jwt_required()
-def run_genetic_algorithm():
-    result = genetic_algorithm()
-    return jsonify("")
-
-@user_api.route('/new_genetic_algorithm', methods=["GET"])
-@jwt_required()
-def new_genetic_algorithm():
-    current_user_email = get_jwt_identity()
-    user_account = Account.query.filter_by(email=current_user_email).first()
-    if not user_account:
-        return jsonify({'message': 'Unauthorized'}), 404
-    user = User.query.get(user_account.user_id)
-    if not user:
-        return jsonify({'message': 'Không tồn tại người dùng này'}), 404
-    if not user.is_validate_user_data():
-        return jsonify({'message': 'Người dùng chưa hoàn thành thông tin cơ bản.'}), 404
-    GA = GeneticAlgorithm(6, 0.2, 5, id)
-    a = GA.main_genetic_algorithm()
-    return a
 
 @user_api.route('/detect_ingredient', methods=['POST'])
 def detect_ingredient():

@@ -5,7 +5,6 @@ from extension import db
 from datetime import datetime, timedelta
 from models.account import Account
 from models.statistic import Statistic
-from genetic_algorithm.GA import genetic_algorithm, print_menu
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 
 statistic_api = Blueprint('statistic_api',__name__,url_prefix='/api/statistic')
@@ -90,6 +89,10 @@ def sevendays_statistic():
     user_account = Account.query.filter_by(email=current_user_email).first()
     if not user_account:
         return jsonify({'message': 'Unauthorized'}), 404
+    user = User.query.get(user_account.user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    user_details = user.get_user_details()
     num_days = int(request.args.get('days', 7))
     end_date = datetime.utcnow().date()
     start_date = end_date - timedelta(days=num_days-1)
@@ -101,7 +104,7 @@ def sevendays_statistic():
             db.func.date(Statistic.date_add) == current_date
         ).all()
         daily_stats = {
-            "date": current_date.isoformat(),
+            "date": current_date.strftime("%d-%m-%Y"), 
             "total_morning_calo": 0,
             "total_noon_calo": 0,
             "total_dinner_calo": 0,
@@ -121,6 +124,10 @@ def sevendays_statistic():
                 daily_stats["total_exercise_calo"]
             )
         statistics_by_day.append(daily_stats)
-    return jsonify(statistics_by_day), 200
+
+    return jsonify({
+        "data": statistics_by_day,
+        "tdee": user_details["tdee"]
+    }), 200
 
 

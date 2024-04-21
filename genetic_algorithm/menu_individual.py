@@ -39,12 +39,19 @@ class MenuIndividual:
     def to_dict(self):
         menu = {}
         temp_menu = self.menu
+        category_info = []
         for category, count in self.MEAL_CATEGORIES.items():
             category_dishes = temp_menu[:count]
-            dish_name = [dish.get_name() for dish in category_dishes]
-            menu[category] = dish_name
+            for index, dish in enumerate(category_dishes):
+                dish_info = {
+                    'dish_id': dish.get_id(),
+                    'dish_order': index + 1,
+                    'meal_type': category
+                }
+                category_info.append(dish_info)
             temp_menu = temp_menu[count:]
         menu['fitness'] = self.fitness
+        menu['data'] = category_info
         return menu
     
     def calculate_food_diversity_score(self):
@@ -192,6 +199,7 @@ class MenuIndividual:
         VHEI_calo_score = self.calculate_VHEI_calo_score()
         health_problem_score = self.calculate_health_problem_score()
         calculate_favorite_score = self.calculate_favorite_score()
+        print(calculate_favorite_score)
         return food_diversity_score+VHEI_calo_score+food_group_diversity_score+health_problem_score+calculate_favorite_score
 
   

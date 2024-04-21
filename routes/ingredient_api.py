@@ -3,6 +3,7 @@ from models.ingredient import Ingredient, IngredientSchema
 from extension import db
 from models.dish import Dish, DishSchema
 from models.recipe import Recipe, RecipeSchema
+from sqlalchemy import func
 
 ingredient_api = Blueprint('ingredient_api',__name__,url_prefix='/api/ingredient')
 
@@ -19,9 +20,21 @@ def ingredients_list_all():
 def ingredients_list():
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 10))
+    category = request.args.get('category', '').strip()
     offset = (page - 1) * page_size
-    total_ingredients = Ingredient.query.count()
-    ingredients = Ingredient.query.offset(offset).limit(page_size).all()
+
+    if category:
+        total_ingredients_by_category = (
+            db.session.query(Ingredient.category, func.count())
+            .filter(Ingredient.category == category)
+            .group_by(Ingredient.category)
+            .all()
+        )
+        total_ingredients = total_ingredients_by_category[0][1] if total_ingredients_by_category else 0
+        ingredients = Ingredient.query.filter_by(category=category).offset(offset).limit(page_size).all()
+    else:
+        total_ingredients = Ingredient.query.count()
+        ingredients = Ingredient.query.offset(offset).limit(page_size).all()
     serialized_ingredients = ingredients_schema.dump(ingredients)
     total_pages = (total_ingredients + page_size - 1) // page_size
     pagination_metadata = {

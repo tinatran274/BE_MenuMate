@@ -3,8 +3,9 @@ from models.dish import Dish, DishSchema
 from models.recipe import Recipe, RecipeSchema
 from models.account import Account
 from models.favorite import Favorite
-from models.user import User, UserSchema
+from models.user import User
 from models.ingredient import Ingredient, IngredientSchema
+from collaborative_filtering.collaborative_filtering import CollaborativeFiltering
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from extension import db
 
@@ -118,3 +119,16 @@ def total_nutrition(id):
         return total_nutrition
     else:
         return jsonify({'message': 'Dish not found'}), 404
+    
+@dish_api.route("/recommend_dish", methods=["GET"])
+@jwt_required()
+def recommend_dish():
+    current_user_email = get_jwt_identity()
+    user_account = Account.query.filter_by(email=current_user_email).first()
+    if not user_account:
+        return jsonify({'message': 'Unauthorized'}), 404
+    CF = CollaborativeFiltering(user_account.user_id, 2)
+    a = CF.generate_recommendations()
+    print(a)
+    
+    return jsonify({'message': 'Dish not found'}), 404
