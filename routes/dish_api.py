@@ -126,9 +126,28 @@ def recommend_dish():
     current_user_email = get_jwt_identity()
     user_account = Account.query.filter_by(email=current_user_email).first()
     if not user_account:
-        return jsonify({'message': 'Unauthorized'}), 404
+        return jsonify({'message': 'user_account not found'}), 404
     CF = CollaborativeFiltering(user_account.user_id, 2)
-    a = CF.generate_recommendations()
-    print(a)
-    
-    return jsonify({'message': 'Dish not found'}), 404
+    recommend_dish_id = CF.generate_recommendations()
+    page = int(request.args.get('page', 1))
+    page_size = 4
+    offset = (page - 1) * page_size
+    total_dish = len(recommend_dish_id)
+    list_recommend_dish = []
+    for dish_id in recommend_dish_id[offset:offset+page_size]:
+        dish = Dish.query.get(dish_id)
+        if dish:
+            detail_dish = dish.to_dict()
+            list_recommend_dish.append(detail_dish)
+    total_pages = (total_dish + page_size - 1) // page_size
+    pagination_metadata = {
+        "current_page": page,
+        "page_size": page_size,
+        "total_items": total_dish,
+        "total_pages": total_pages
+    }
+    response = {
+        "data": list_recommend_dish,
+        "pagination": pagination_metadata
+    }
+    return jsonify(response)

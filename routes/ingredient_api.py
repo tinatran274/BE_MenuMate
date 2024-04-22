@@ -22,7 +22,6 @@ def ingredients_list():
     page_size = int(request.args.get('page_size', 10))
     category = request.args.get('category', '').strip()
     offset = (page - 1) * page_size
-
     if category:
         total_ingredients_by_category = (
             db.session.query(Ingredient.category, func.count())
