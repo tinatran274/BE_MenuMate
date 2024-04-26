@@ -15,9 +15,9 @@ class User(db.Model):
 
     def __init__(self, username):
         self.username = username
-        self.age = 0
-        self.height = 1
-        self.weight = 1
+        self.age = 25
+        self.height = 160
+        self.weight = 50
         self.gender = 'Nữ'
         self.exercise = 'Không vận động'
         self.aim = 'Giảm cân'
@@ -49,7 +49,7 @@ class User(db.Model):
         return bmr
     
     def calculate_tdee(self):
-        tdee_multiplier = 1.2  # Không vận động
+        tdee_multiplier = 1.2  
         if self.exercise == 'Vận động nhẹ (1-3 ngày/tuần)':
             tdee_multiplier = 1.375
         elif self.exercise == 'Vận động vừa phải (4-5 ngày/tuần)':

@@ -1,5 +1,6 @@
 import random
 from models.favorite import Favorite
+from models.user import User
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import numpy as np
@@ -16,22 +17,68 @@ class CollaborativeFiltering:
         self.label_cluster = []
         self.dim_reduced_matrix = []
         self.user_average = []
+        self.user_data_matrix = self.get_user_data_matrix()
         self.user_item_matrix = self.get_user_item_matrix()
         self.k = k
 
+    def convert_gender(self, value):
+        if value == 'Nữ':
+            return 0
+        else:
+            return 1
+        
+    def convert_exercise(self, value):
+        if value == 'Vận động nhẹ (1-3 ngày/tuần)':
+            return 1.375
+        elif value == 'Vận động vừa phải (4-5 ngày/tuần)':
+            return 1.55
+        elif value == 'Vận động nhiều (6-7 ngày/tuần)':
+            return 1.9
+        return 1.2
+    
+    def convert_aim(self, value):
+        if value == 'Giảm cân':
+            return 3
+        elif value == 'Giữ cân':
+            return 2
+        return 1
+        
+    def normalize_user_data(self, user_data):
+        num_cols = len(user_data[0])
+        for row in user_data:
+            row[3] = self.convert_gender(row[3])
+            row[4] = self.convert_exercise(row[4])
+            row[5] = self.convert_aim(row[5])
+        mins = [min(row[i] for row in user_data) for i in range(num_cols)]
+        maxs = [max(row[i] for row in user_data) for i in range(num_cols)]
+        for row in user_data:
+            for i in range(num_cols):
+                min_val = mins[i]
+                max_val = maxs[i]
+                row[i] = (row[i] - min_val) / (max_val - min_val)
+        return user_data
+
+    def get_user_data_matrix(self):
+        users = User.query.all()
+        user_list = [[u.age, u.height, u.weight, u. gender, u.exercise, u.aim] for u in users]
+        user_data_matrix = self.normalize_user_data(user_list)
+        pca = PCA(n_components=2)
+        pca.fit(user_data_matrix)
+        transformed_matrix = pca.transform(user_data_matrix)
+        self.dim_reduced_matrix = transformed_matrix
+        return user_data_matrix
+
     def get_user_item_matrix(self):
-        favorites = Favorite.query.all()
-        users = set(f.user_id for f in favorites)
-        dishes = set(f.dish_id for f in favorites)
+        favorites_list = Favorite.query.all()
+        users_list = User.query.all()
+        users = set(u.id for u in users_list)
+        dishes = set(f.dish_id for f in favorites_list)
         self.n_user_id = list(users)
-        user_favorites = Favorite.query.filter_by(user_id=self.uid).all()
-        if not user_favorites:
-            self.n_user_id.append(self.uid)
         self.m_dish_id = list(dishes)
         user_item_matrix = [[0] * len(self.m_dish_id) for _ in range(len(self.n_user_id))]
         user_index_map = {user: i for i, user in enumerate(self.n_user_id)}
         dish_index_map = {dish: i for i, dish in enumerate(self.m_dish_id)}
-        for favorite in favorites:
+        for favorite in favorites_list:
             user_index = user_index_map[favorite.user_id]
             dish_index = dish_index_map[favorite.dish_id]
             user_item_matrix[user_index][dish_index] = 1
@@ -45,14 +92,11 @@ class CollaborativeFiltering:
             ave = total/num_items
             row_averages.append(ave)
         self.user_average=row_averages
-        pca = PCA(n_components=2)
-        pca.fit(user_item_matrix)
-        transformed_matrix = pca.transform(user_item_matrix)
-        self.dim_reduced_matrix = transformed_matrix
-        print(user_item_matrix)
         return user_item_matrix
     
     def find_k(self):
+        print(self.user_data_matrix)
+        print(self.user_item_matrix)
         range_k = [2, 3, 4, 5]
         silhouette_avg = []
         for i in range_k:
@@ -85,6 +129,7 @@ class CollaborativeFiltering:
         other_users_indices.remove(user_cluster_indices)
         if len(other_users_indices):
             other_user = [self.user_item_matrix[i] for i in other_users_indices]
+
             cosine_similarities = cosine_similarity([self.user_item_matrix[user_cluster_indices]],
                                                     other_user) 
             sorted_neighbor_indices = [value for _, value in sorted(zip(cosine_similarities[0], 
@@ -114,7 +159,8 @@ class CollaborativeFiltering:
             print(item_indices)
             print(list_weight)
             print(sorted_indices_recommend)
-            return sorted_indices_recommend
+            recommended_dishes = [self.m_dish_id[i] for i in sorted_indices_recommend]
+            return recommended_dishes
         else: 
             trans_user_item_matrix = [[row[i] for row in self.user_item_matrix] for i in range(len(self.user_item_matrix[0]))]
             row_sum = []
@@ -123,9 +169,11 @@ class CollaborativeFiltering:
                 for item in row:
                     total += item
                 row_sum.append(total)
-            print(row_sum)
             sorted_dish_indices = [value for _, value in sorted(zip(row_sum, self.m_dish_id), reverse=True)]
-            return sorted_dish_indices
+            print(sorted_dish_indices)
+            recommended_dishes = [self.m_dish_id[i] for i in sorted_dish_indices]
+            print(recommended_dishes)
+            return recommended_dishes
 
 
 

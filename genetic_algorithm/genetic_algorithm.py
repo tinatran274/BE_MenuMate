@@ -16,7 +16,6 @@ class GeneticAlgorithm:
         self.mutation_rate = mutation_rate
         self.generation = generation
         self.population = self.initialize_population()
-        self.generation = generation
 
     def initialize_population(self):
         return [MenuIndividual(self.uid) for _ in range(self.population_size)]

@@ -110,6 +110,10 @@ def init_cannot_eat_data():
         db.session.add(cannot_eat)
     db.session.commit()
 
+def init_user_data():
+    print('Initializing user data')
+    
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
