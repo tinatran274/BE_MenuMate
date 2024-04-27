@@ -1,0 +1,51 @@
+username,age,height,weight,gender,exercise,aim,disease_id
+user_1,21,152,60,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3
+user_2,20,156,50,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3
+user_3,26,152,48,Nữ,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_4,20,178,76,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_5,15,160,46,Nam,Vận động nhiều (6-7 ngày/tuần),Tăng cân,3
+user_6,11,145,37,Nữ,Vận động nhẹ (1-3 ngày/tuần),Tăng cân,3
+user_7,27,173,70,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_8,53,165,70,Nam,Vận động nhiều (6-7 ngày/tuần),Giữ cân,3
+user_9,52,151,50,Nữ,Vận động nhiều (6-7 ngày/tuần),Giữ cân,3
+user_10,28,148,40,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_11,22,160,52,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3
+user_12,20,164,50,Nữ,Không vận động,Giảm cân,3
+user_13,85,145,36,Nữ,Không vận động,Tăng cân,2
+user_14,55,168,68,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,1
+user_15,4,100,20,Nam,Không vận động,Tăng cân,3
+user_16,20,170,52,Nam,Vận động nhẹ (1-3 ngày/tuần),Tăng cân,3
+user_17,55,160,60,Nam,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_18,60,155,55,Nữ,Vận động nhẹ (1-3 ngày/tuần),Tăng cân,3
+user_19,10,130,32,Nữ,Không vận động,Tăng cân,3
+user_20,8,110,25,Nữ,Không vận động,Tăng cân,3
+user_21,30,155,48,Nữ,Không vận động,Giữ cân,3
+user_22,32,170,60,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_23,29,150,60,Nữ,Không vận động,Giảm cân,3
+user_24,36,160,60,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_25,21,155,45,Nữ,Không vận động,Giữ cân,3
+user_26,21,173,71,Nam,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3
+user_27,15,159,50,Nữ,Không vận động,Giữ cân,3
+user_28,51,168,60,Nam,Không vận động,Giữ cân,3
+user_29,47,151,49,Nữ,Không vận động,Giữ cân,3
+user_30,21,175,80,Nam,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3
+user_31,21,176,60,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_32,20,177,75,Nam,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_33,30,177,75,Nam,Vận động vừa phải (4-5 ngày/tuần),Giữ cân,3
+user_34,12,141,38,Nữ,Không vận động,Giảm cân,3
+user_35,12,140,35,Nữ,Không vận động,Giảm cân,3
+user_36,42,168,70,Nam,Vận động vừa phải (4-5 ngày/tuần),Giảm cân,3
+user_37,7,120,24,Nam,Không vận động,Giữ cân,3
+user_38,65,148,55,Nữ,Không vận động,Giữ cân,1
+user_39,67,165,70,Nam,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_40,21,158,48,Nữ,Không vận động,Giữ cân,3
+user_41,21,170,69,Nam,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_42,21,150,45,Nữ,Không vận động,Giữ cân,3
+user_43,35,180,75,Nam,Vận động nhiều (6-7 ngày/tuần),Giữ cân,3
+user_44,58,172,80,Nam,Không vận động,Giảm cân,1
+user_45,12,128,35,Nam,Không vận động,Tăng cân,3
+user_46,20,160,45,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_47,21,159,47,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giữ cân,3
+user_48,54,168,68,Nam,Vận động nhiều (6-7 ngày/tuần),Giữ cân,3
+user_49,51,148,43,Nữ,Vận động nhiều (6-7 ngày/tuần),Tăng cân,3
+user_50,21,155,60,Nữ,Vận động nhẹ (1-3 ngày/tuần),Giảm cân,3

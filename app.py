@@ -12,10 +12,13 @@ from models.dish import Dish
 from models.recipe import Recipe
 from models.disease import Disease
 from models.cannot_eat import CannotEat
-from models.statistic import Statistic
+from models.account import Account
+from models.user import User
+from models.favorite import Favorite
 from extension import db
 import pandas as pd
 from datetime import timedelta
+from extension import bcrypt
 
 
 
@@ -110,8 +113,60 @@ def init_cannot_eat_data():
         db.session.add(cannot_eat)
     db.session.commit()
 
+def init_temp_data():
+    print('Initializing temp data')
+    df = pd.read_csv('temp.csv')
+    for index, row in df.iterrows():
+        recipe = Recipe(
+            ingredient_id=row[0],
+            dish_id=row[1],
+            unit=row[2]
+        )
+        db.session.add(recipe)
+    db.session.commit()
+
+def init_account_data():
+    print('Initializing acocunt data')
+    df = pd.read_csv('account_data.csv')
+    for index, row in df.iterrows():
+        hashed_password = bcrypt.generate_password_hash(str(row[2])).decode('utf-8')
+        acc = Account(
+            user_id=row[0],
+            email=row[1],
+            password=hashed_password
+        )
+        db.session.add(acc)
+    db.session.commit()
+
 def init_user_data():
     print('Initializing user data')
+    df = pd.read_csv('user_data.csv')
+    for index, row in df.iterrows():
+        user = User(
+            username=row[0],
+            age=row[1],
+            height=row[2],
+            weight=row[3],
+            gender=row[4],
+            exercise=row[5],
+            aim=row[6],
+            disease_id=row[7],
+        )
+        db.session.add(user)
+    db.session.commit()
+
+
+def init_favorite_data():
+    print('Initializing favorite data')
+    df = pd.read_csv('favorite_data_unique.csv')
+    for index, row in df.iterrows():
+        fav = Favorite(
+            user_id=row[0],
+            dish_id=row[1],
+        )
+        db.session.add(fav)
+    db.session.commit()
+
     
 
 if __name__ == "__main__":
@@ -127,5 +182,11 @@ if __name__ == "__main__":
             init_disease_data()
         if not CannotEat.query.first():
             init_cannot_eat_data()
+        if not User.query.first():
+            init_user_data()
+        if not Account.query.first():
+            init_account_data()
+        if not Favorite.query.first():
+            init_favorite_data()
         
         app.run(host='0.0.0.0', port='5000')

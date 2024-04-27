@@ -97,7 +97,7 @@ class CollaborativeFiltering:
     def find_k(self):
         print(self.user_data_matrix)
         print(self.user_item_matrix)
-        range_k = [2, 3, 4, 5]
+        range_k = [2, 3, 4, 5, 6, 7, 8, 9]
         silhouette_avg = []
         for i in range_k:
             kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)

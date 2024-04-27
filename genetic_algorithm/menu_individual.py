@@ -159,8 +159,9 @@ class MenuIndividual:
             user_aim = user.get_aim()
             if user_aim == 'Tăng cân':
                 aim_score = 100 * (total_kcal / user_tdee)
-            else:
+            elif user_aim == 'Giảm cân':
                 aim_score = 100 - ((100 * (total_kcal - user_tdee)) / user_tdee)
+            else: aim_score = 100
 
         return  aim_score + total_VHEI_score
 
@@ -189,7 +190,7 @@ class MenuIndividual:
         else: 
             user_favorite = (Favorite.query.filter_by(user_id=user.get_id()).all())
             favorite_dish_id = [favorite.dish_id for favorite in user_favorite]
-            favorite_point = sum(10 for dish in self.menu if dish.get_id() in favorite_dish_id)
+            favorite_point = sum(5 for dish in self.menu if dish.get_id() in favorite_dish_id)
             return favorite_point
 
 
@@ -199,7 +200,7 @@ class MenuIndividual:
         VHEI_calo_score = self.calculate_VHEI_calo_score()
         health_problem_score = self.calculate_health_problem_score()
         calculate_favorite_score = self.calculate_favorite_score()
-        print(calculate_favorite_score)
+        # print(calculate_favorite_score)
         return food_diversity_score+VHEI_calo_score+food_group_diversity_score+health_problem_score+calculate_favorite_score
 
   

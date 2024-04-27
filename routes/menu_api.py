@@ -68,21 +68,27 @@ def get_suggest_menu():
         noon_dishs = []
         dinner_dishs = []
         snack_dishs = []
+        total_kcal = 0
         for suggested_menu, meal, dish in result:
             if meal.meal_type == "morning":
+                total_kcal += dish.to_dict()['kcal']
                 morning_dishs.append(dish.to_dict())
             elif meal.meal_type == "noon":
+                total_kcal += dish.to_dict()['kcal']
                 noon_dishs.append(dish.to_dict())
             elif meal.meal_type == "evening":
+                total_kcal += dish.to_dict()['kcal']
                 dinner_dishs.append(dish.to_dict())
             else: 
+                total_kcal += dish.to_dict()['kcal']
                 snack_dishs.append(dish.to_dict())
         return jsonify({
             "morning_dishs": morning_dishs,
             "noon_dishs": noon_dishs,
             "dinner_dishs": dinner_dishs,
             "snacks": snack_dishs,
-            "fitness_score": suggested_menu.fitness_score
+            "fitness_score": suggested_menu.fitness_score,
+            "kcal": round(total_kcal, 2)
         })
     else:
         return jsonify({
@@ -90,5 +96,6 @@ def get_suggest_menu():
             "noon_dishs": [],
             "dinner_dishs": [],
             "snacks": [],
-            "fitness_score": 0
+            "fitness_score": 0,
+            "kcal": 0
         })

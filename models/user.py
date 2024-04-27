@@ -13,15 +13,15 @@ class User(db.Model):
     aim = db.Column(db.String(100))
     disease_id = db.Column(db.Integer, ForeignKey('disease.id'))
 
-    def __init__(self, username):
+    def __init__(self, username, age=25, height=160, weight=50, gender='Nữ', exercise='Không vận động', aim='Giảm cân', disease_id=3):
         self.username = username
-        self.age = 25
-        self.height = 160
-        self.weight = 50
-        self.gender = 'Nữ'
-        self.exercise = 'Không vận động'
-        self.aim = 'Giảm cân'
-        self.disease_id = 3
+        self.age = age
+        self.height = height
+        self.weight = weight
+        self.gender = gender
+        self.exercise = exercise
+        self.aim = aim
+        self.disease_id = disease_id
 
     def __repr__(self):
         return f'<User {self.username}>'

@@ -80,7 +80,7 @@ class Dish(db.Model):
                 "id": self.id,
                 "name": self.name,
                 "main_category": self.main_category,
-                "total_kcal" : 0,
+                "kcal" : 0,
             }
 
 class DishSchema(ma.Schema):

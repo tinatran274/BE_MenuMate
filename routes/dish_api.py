@@ -8,6 +8,7 @@ from models.ingredient import Ingredient, IngredientSchema
 from collaborative_filtering.collaborative_filtering import CollaborativeFiltering
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from extension import db
+from sqlalchemy import func
 
 
 dish_api = Blueprint('dish_api',__name__,url_prefix='/api/dish')
@@ -28,9 +29,20 @@ def dishs_all_list():
 def dishs_list():
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 10))
+    main_category = request.args.get('main_category', '').strip()
     offset = (page - 1) * page_size
-    total_dish = Dish.query.count()
-    dishs = Dish.query.offset(offset).limit(page_size).all()
+    if main_category:
+        total_dish_by_category = (
+            db.session.query(Dish.main_category, func.count())
+            .filter(Dish.main_category == main_category)
+            .group_by(Dish.main_category)
+            .all()
+        )
+        total_dish = total_dish_by_category[0][1] if total_dish_by_category else 0
+        dishs = Dish.query.filter_by(main_category=main_category).offset(offset).limit(page_size).all()
+    else:
+        total_dish = Dish.query.count()
+        dishs = Dish.query.offset(offset).limit(page_size).all()
     serialized_dishs = []
     if dishs:
         for dish in dishs:
@@ -127,19 +139,22 @@ def recommend_dish():
     user_account = Account.query.filter_by(email=current_user_email).first()
     if not user_account:
         return jsonify({'message': 'user_account not found'}), 404
-    CF = CollaborativeFiltering(user_account.user_id, 2)
+    CF = CollaborativeFiltering(user_account.user_id, 3)
     recommend_dish_id = CF.generate_recommendations()
     page = int(request.args.get('page', 1))
+    main_category = request.args.get('main_category', '').strip()
     page_size = 4
     offset = (page - 1) * page_size
-    total_dish = len(recommend_dish_id)
-    list_recommend_dish = []
-    for dish_id in recommend_dish_id[offset:offset+page_size]:
-        dish = Dish.query.get(dish_id)
-        if dish:
-            detail_dish = dish.to_dict()
-            list_recommend_dish.append(detail_dish)
-    total_pages = (total_dish + page_size - 1) // page_size
+    if main_category:
+        filtered_recommend_dish_id = [dish_id for dish_id in recommend_dish_id if Dish.query.filter_by(main_category=main_category, id=dish_id).first()]
+        total_dish = len(filtered_recommend_dish_id)
+        total_pages = (total_dish + page_size - 1) // page_size
+        list_recommend_dish = [Dish.query.get(dish_id).to_dict() for dish_id in filtered_recommend_dish_id[offset:offset+page_size]]
+    else:
+        total_dish = len(recommend_dish_id)
+        list_recommend_dish = [Dish.query.get(dish_id).to_dict() for dish_id in recommend_dish_id[offset:offset+page_size]]
+        total_pages = (total_dish + page_size - 1) // page_size
+        
     pagination_metadata = {
         "current_page": page,
         "page_size": page_size,

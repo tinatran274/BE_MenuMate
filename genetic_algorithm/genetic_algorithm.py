@@ -59,7 +59,8 @@ class GeneticAlgorithm:
 
     def main_genetic_algorithm(self):
         best_menu = self.population[0]
-        for _ in range(self.generation):
+        while best_menu.get_fitness() < 420:
+        # for _ in range(self.generation):
             fitness_scores = [menu.get_fitness() for menu in self.population]
             print(fitness_scores)
             selected_parents = self.random_selection(fitness_scores)
@@ -71,6 +72,6 @@ class GeneticAlgorithm:
                 child2 = self.random_mutate(child2)
                 children.extend([child1, child2])
             self.population = children
+            best_menu = max(self.population, key=lambda menu: menu.get_fitness())
 
-        best_menu = max(self.population, key=lambda menu: menu.get_fitness())
         return best_menu.to_dict()
