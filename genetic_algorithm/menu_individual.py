@@ -157,10 +157,10 @@ class MenuIndividual:
         else: 
             user_tdee = user.calculate_tdee()
             user_aim = user.get_aim()
-            if user_aim == 'Tăng cân':
-                aim_score = 100 * (total_kcal / user_tdee)
-            elif user_aim == 'Giảm cân':
-                aim_score = 100 - ((100 * (total_kcal - user_tdee)) / user_tdee)
+            if user_aim == 'Giảm cân':
+                aim_score = 100 * (user_tdee / total_kcal) if total_kcal > user_tdee else 100
+            elif user_aim == 'Tăng cân':
+                aim_score = 100 * (total_kcal / user_tdee) if total_kcal < user_tdee else 100
             else: aim_score = 100
 
         return  aim_score + total_VHEI_score

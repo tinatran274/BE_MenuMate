@@ -22,7 +22,7 @@ def new_genetic_algorithm():
     user_account = Account.query.filter_by(email=current_user_email).first()
     if not user_account:
         return jsonify({'message': 'Unauthorized'}), 404
-    GA = GeneticAlgorithm(6, 0.2, 5, user_account.user_id)
+    GA = GeneticAlgorithm(10, 0.2, 5, user_account.user_id)
     a = GA.main_genetic_algorithm()
     current_date = datetime.utcnow().date()
     max_num_suggest = (SuggestedMenu.query.with_entities(func.max(SuggestedMenu.num_suggest))

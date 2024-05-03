@@ -1,8 +1,6 @@
 import random
-from models.dish import Dish, DishSchema
-from models.recipe import Recipe, RecipeSchema
-from models.ingredient import Ingredient
 from genetic_algorithm.menu_individual import MenuIndividual
+from models.dish import Dish, DishSchema
 from extension import db, ma 
 import numpy as np
 import pandas as pd
@@ -59,7 +57,7 @@ class GeneticAlgorithm:
 
     def main_genetic_algorithm(self):
         best_menu = self.population[0]
-        while best_menu.get_fitness() < 420:
+        while best_menu.get_fitness() < 400:
         # for _ in range(self.generation):
             fitness_scores = [menu.get_fitness() for menu in self.population]
             print(fitness_scores)

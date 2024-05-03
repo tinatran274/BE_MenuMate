@@ -79,11 +79,16 @@ def add_favorite_dish():
     existing_favorite = (db.session.query(Favorite)
                          .filter_by(dish_id=new_favorite_dish_id, user_id=user_account.user_id).first())
     if existing_favorite:
-        db.session.delete(existing_favorite)
-        db.session.commit()
-        return jsonify({'message': 'Món này đã ở trong danh sách yêu thích, đã xóa món ăn'}), 201
+        if existing_favorite.get_value() == 1:
+            existing_favorite.value = 0
+            db.session.commit()
+            return jsonify({'message': 'Món này đã ở trong danh sách yêu thích, không thích món ăn này'}), 201
+        else:
+            existing_favorite.value = 1
+            db.session.commit()
+            return jsonify({'message': 'Món này không đc yêu thích, đã thích lại món ăn'}), 201
     else:
-        new_favorite = Favorite(user_account.user_id, new_favorite_dish_id)
+        new_favorite = Favorite(user_account.user_id, new_favorite_dish_id, 1)
         db.session.add(new_favorite)
         db.session.commit()
         return jsonify({'message': 'Thêm thành công'}), 200
@@ -96,10 +101,12 @@ def dish_detail_user(id):
     if not user_account:
         return jsonify({'message': 'Unauthorized'}), 404
     dish = Dish.query.get(id)
-    favorite_entry = Favorite.query.filter_by(user_id=user_account.user_id, dish_id=id).first()
     if not dish:
-        return dish_schema.dump(dish), 200
-    return {**dish_schema.dump(dish), **{'is_favorited': bool(favorite_entry)}}
+        return jsonify({"message": "Món ăn không tồn tại"}), 404
+    favorite_entry = Favorite.query.filter_by(user_id=user_account.user_id, dish_id=id).first()
+    if not favorite_entry or favorite_entry.get_value() == 0:
+        return {**dish_schema.dump(dish), **{'is_favorited': False}}
+    return {**dish_schema.dump(dish), **{'is_favorited': True}}
 
 
 @dish_api.route("/recipe/<id>", methods=["GET"])

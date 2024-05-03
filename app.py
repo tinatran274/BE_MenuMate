@@ -163,8 +163,19 @@ def init_favorite_data():
         fav = Favorite(
             user_id=row[0],
             dish_id=row[1],
+            value = 1
         )
         db.session.add(fav)
+    db.session.commit()
+    print('Initializing unfavorite data')
+    df1 = pd.read_csv('unfavorite_data_unique.csv')
+    for index, row in df1.iterrows():
+        unfav = Favorite(
+            user_id=row[0],
+            dish_id=row[1],
+            value = 0
+        )
+        db.session.add(unfav)
     db.session.commit()
 
     
