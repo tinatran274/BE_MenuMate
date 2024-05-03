@@ -111,6 +111,12 @@ class CollaborativeFiltering:
                 break
         return indices
 
+    def hamming_similarity(self, arr1, arr2):
+        if len(arr1) != len(arr2):
+            return 0
+        distance = np.sum(arr1 != arr2)
+        similarity = 1 - (distance / len(arr1))
+        return similarity
 
     def generate_recommendations(self):
         user_cluster_indices = self.run_kmeans()
@@ -120,21 +126,20 @@ class CollaborativeFiltering:
         other_users_indices.remove(user_cluster_indices)
         if len(other_users_indices):
             other_users = [self.user_item_matrix[i] for i in other_users_indices]
-            cosine_similarities = []
+            hamming_similarities = []
             for other_user in range(len(other_users)):
                 temp_u = []
                 temp_v = []
-                temp_cosine_similarities = []
                 for dish in range(len(self.m_dish_id)):
                     if other_users[other_user][dish] != -1 and self.user_item_matrix[user_cluster_indices][dish] != -1:
                         temp_u.append(self.user_item_matrix[user_cluster_indices][dish])
                         temp_v.append(other_users[other_user][dish])
-                temp_cosine_similarities = cosine_similarity([temp_u], [temp_v])
-                cosine_similarities.append(temp_cosine_similarities[0][0])
+                temp_similarities = self.hamming_similarity(temp_u, temp_v)
+                hamming_similarities.append(temp_similarities)
 
-            sorted_neighbor_indices = [value for _, value in sorted(zip(cosine_similarities, 
+            sorted_neighbor_indices = [value for _, value in sorted(zip(hamming_similarities, 
                                                                         other_users_indices), reverse=True)]
-            sorted_cosine_similarities = sorted(cosine_similarities, reverse=True)
+            sorted_hamming_similarities = sorted(hamming_similarities, reverse=True)
             sorted_average = [self.user_average[i] for i in sorted_neighbor_indices]
             k_nearest_neighbors = sorted_neighbor_indices[:self.k]
             list_weight = []
@@ -145,8 +150,8 @@ class CollaborativeFiltering:
                 for index, neighbor in enumerate(k_nearest_neighbors):
                     # print(item, index, neighbor, self.user_item_matrix[neighbor][item])
                     if self.user_item_matrix[neighbor][item] != -1:
-                        numerator += sorted_cosine_similarities[index] * (self.user_item_matrix[neighbor][item]-sorted_average[index])
-                denominator = sum(sorted_cosine_similarities[:self.k])
+                        numerator += sorted_hamming_similarities[index] * (self.user_item_matrix[neighbor][item]-sorted_average[index])
+                denominator = sum(sorted_hamming_similarities[:self.k])
                 weight = numerator / denominator
                 weight += self.user_average[user_cluster_indices]
                 list_weight.append(weight)
