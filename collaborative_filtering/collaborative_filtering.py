@@ -78,7 +78,7 @@ class CollaborativeFiltering:
             for item in row:
                 if item >= 0:
                     total += item
-                    num_items += 1
+                num_items += 1
             ave = total/num_items
             row_averages.append(ave)
         self.user_average=row_averages

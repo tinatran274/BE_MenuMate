@@ -74,7 +74,13 @@ def dishs_list(id):
             serialized_dishs.append(total_nutrition)
     return jsonify(serialized_dishs), 200
 
+@ingredient_api.route("/detect", methods=["PUT"])
+def detect_ingredient():
 
+    
+
+    
+    return True
 
 
 # @ingredient_api.route("/update/<id>", methods=["PUT"])
@@ -93,3 +99,5 @@ def dishs_list(id):
 #     db.session.delete(student)
 #     db.session.commit()
 #     return student_schema.jsonify(student)
+
+

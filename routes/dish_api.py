@@ -138,6 +138,19 @@ def total_nutrition(id):
         return total_nutrition
     else:
         return jsonify({'message': 'Dish not found'}), 404
+
+@dish_api.route("/get_array_dish", methods=["GET"])
+def get_array_dish():
+    array_dish_id=request.json["array_dish_id"]
+    array_dish = Dish.query.filter(Dish.id.in_(array_dish_id)).all()
+    if array_dish:
+        list_dish = []
+        for dish in array_dish:
+            total_nutrition = dish.to_dict()
+            list_dish.append(total_nutrition)
+        return list_dish
+    else:
+        return jsonify({'message': 'Dish not found'}), 404
     
 @dish_api.route("/recommend_dish", methods=["GET"])
 @jwt_required()

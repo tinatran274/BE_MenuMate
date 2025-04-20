@@ -19,7 +19,7 @@ from extension import db
 import pandas as pd
 from datetime import timedelta
 from extension import bcrypt
-
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 app = Flask(__name__)
@@ -32,6 +32,17 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 def home():
     return 'Hello, World!'
 
+SWAGGER_URL = '/api/docs'
+API_URL = 'http://petstore.swagger.io/v2/swagger.json' 
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={ 
+        'app_name': "Test application"
+    },
+)
+
 db.init_app(app)
 app.register_blueprint(student_api)
 app.register_blueprint(auth)
@@ -40,6 +51,7 @@ app.register_blueprint(dish_api)
 app.register_blueprint(ingredient_api)
 app.register_blueprint(statistic_api)
 app.register_blueprint(menu_api)
+app.register_blueprint(swaggerui_blueprint)
 
 jwt = JWTManager(app)
                  
